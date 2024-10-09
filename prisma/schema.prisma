@@ -1,0 +1,155 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int     @id @default(autoincrement())
+  email        String  @unique
+  name         String?
+  surname      String?
+  passwordHash String
+  passwordSalt String
+  status       Boolean @default(true)
+  role         Role    @default(CLIENT)
+  driver       Driver?
+  
+  @@map("users")
+  
+  
+  TravelDetail TravelDetail[]
+}
+
+enum Role {
+  ADMIN
+  CLIENT
+  DRIVER
+}
+
+model Driver {
+  id                  Int                 @id @default(autoincrement())
+  user_id             Int                 @unique
+  dataFile            String
+  status              Boolean             @default(false)
+  assignmentHistories AssignmentHistory[]
+  user                User                @relation(fields: [user_id], references: [id])
+  vehicles            Vehicle[]
+  //wallet              Wallet?
+
+  @@map("drivers")
+}
+
+model VehicleType {
+  id           Int       @id @default(autoincrement())
+  type         String
+  seats_amount Int
+  price         Float
+  vehicles     Vehicle[]
+
+  @@map("vehicles_types")
+}
+
+model Vehicle {
+  id                  Int                 @id @default(autoincrement())
+  licence_plate       String              @unique
+  brand               String
+  model               String
+  color               String
+  status              String
+  enterpriseId        Int?
+  driverId            Int?
+  typeId              Int
+  assignmentHistories AssignmentHistory[]
+  driver              Driver?             @relation(fields: [driverId], references: [id])
+  type                VehicleType         @relation(fields: [typeId], references: [id])
+
+  @@map("vehicles")
+}
+
+model City {
+  id                Int            @id @default(autoincrement())
+  name              String         @unique
+  destinationRoutes Route[]        @relation("destination_city_id")
+  originRoutes      Route[]        @relation("origin_city_id")
+ 
+
+  @@map("cities")
+}
+
+model Route {
+  id                  Int            @id @default(autoincrement())
+  origin_city_id      Int
+  destination_city_id Int
+  longitude_origin    Decimal  @db.Decimal(9, 6)
+  latitude_origin     Decimal  @db.Decimal(9, 6)
+  longitude_destination Decimal  @db.Decimal(9, 6)
+  latitude_destination  Decimal  @db.Decimal(9, 6)
+  destination_city    City           @relation("destination_city_id", fields: [destination_city_id], references: [id])
+  origin_city         City           @relation("origin_city_id", fields: [origin_city_id], references: [id])
+ 
+  travel              Travel?
+  @@map("Routes")
+}
+
+
+model AssignmentHistory {
+  id          Int       @id @default(autoincrement())
+  driverId    Int
+  vehicleId   Int
+  date        DateTime  @default(now())
+  updatedDate DateTime?
+  driver      Driver    @relation(fields: [driverId], references: [id])
+  vehicle     Vehicle   @relation(fields: [vehicleId], references: [id])
+   travel Travel[]
+  @@map("assignment_histories")
+ 
+}
+
+enum Status {
+  Pendiente
+  Cursando
+  Cancelado
+  Finalizado
+}
+
+model Travel {
+  id                  Int                 @id @default(autoincrement())
+  status              Status              @default(Pendiente)
+  departure_datetime  DateTime
+  assignmentHistoryId Int                 @unique
+  availableSeats      Int
+  routeId             Int @unique
+  estimatedArrival    DateTime
+
+  //reservations        Reservation[]
+  assignmentHistory   AssignmentHistory   @relation(fields: [assignmentHistoryId], references: [id])
+  route               Route               @relation(fields: [routeId], references: [id])
+  
+  //walletTransactions  WalletTransaction[]
+
+  @@map("travels")
+  TravelDetail TravelDetail[]
+}
+
+model TravelDetail {
+  id          Int     @id @default(autoincrement())
+  travelId    Int
+  userId      Int
+  seatNumber  Int
+  normalPrice Float
+  distanceAmount Float
+  TotalPrice  Float
+  user        User    @relation(fields: [userId], references: [id])
+  travel      Travel  @relation(fields: [travelId], references: [id])
+  @@map("travels_details")
+}
