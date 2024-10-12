@@ -14,13 +14,14 @@ export class PrismaAuthRepositoryAdapter implements AuthRepositoryPort {
 
   async validateUser(logUserDto: LogUserDto): Promise<any> {
     const user = await this.userRepository.findByEmail(logUserDto.email);
-    console.log(user);
+    
 
     if (
       user &&
       (await bcrypt.compare(logUserDto.password, user.passwordHash))
     ) {
       const { passwordHash, passwordSalt, ...result } = user;
+      console.log(result);
       return result;
     }
     return null;
@@ -28,13 +29,17 @@ export class PrismaAuthRepositoryAdapter implements AuthRepositoryPort {
 
   async logUser(logUserDto: LogUserDto): Promise<any> {
     var validate = await this.validateUser(logUserDto);
+    console.log("--------------------");
     console.log(validate);
 
     if (!validate) {
       throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
     }
 
-    const payload = { email: logUserDto.email };
+    const payload = { email: logUserDto.email,
+      id: validate.id,
+      role: validate.role
+    };
 
     var token = this.jwtService.sign(payload);
 
