@@ -7,7 +7,11 @@ import { UserRepositoryPort } from 'src/User/Domain/repositories/user.repository
 export class PrismaUserRepositoryAdapter implements UserRepositoryPort {
   constructor(private prisma: PrismaClient) {}
   async listUsers(): Promise<any[]> {
-    return await this.prisma.user.findMany();
+    return await this.prisma.user.findMany({
+      where: {
+        status: true,
+      },
+    });
   }
   async createUser(user: CreateUserDto): Promise<any> {
     try {
@@ -43,16 +47,18 @@ export class PrismaUserRepositoryAdapter implements UserRepositoryPort {
       throw new HttpException('Error creando el editando el usuario', 500);
     }
   }
-  
+
   async deleteUser(userId: number): Promise<boolean> {
-    return await this.prisma.user.update({
+    return (await this.prisma.user.update({
       where: {
         id: userId,
       },
       data: {
         status: false,
       },
-    }) ? true : false;
+    }))
+      ? true
+      : false;
   }
 
   async findByEmail(email: string): Promise<any> {

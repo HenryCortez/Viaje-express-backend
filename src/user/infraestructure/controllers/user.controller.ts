@@ -26,7 +26,7 @@ import { UpdateUserUseCase } from 'src/user/application/usecases/update-user.use
       return request.status(HttpStatus.CREATED).json(userCreated);
     }
   
-    @Roles('CLIENT')
+    @Roles('ADMIN')
     @UseGuards(AuthGuard, RolesGuard)
     @Get()
     async listUsers(@Res() request): Promise<any> {
@@ -34,7 +34,8 @@ import { UpdateUserUseCase } from 'src/user/application/usecases/update-user.use
       return request.status(HttpStatus.OK).json(users);
     }
 
-    @UseGuards(AuthGuard)
+    @Roles('CLIENT', 'ADMIN')
+    @UseGuards(AuthGuard, RolesGuard)
     @Patch('/profile/:id')
     async updateUser(
       @Res() response,
@@ -45,7 +46,8 @@ import { UpdateUserUseCase } from 'src/user/application/usecases/update-user.use
       return response.status(HttpStatus.OK).json(userUpdated);
     }
   
-    @UseGuards(AuthGuard)
+    @Roles('CLIENT', 'ADMIN')
+    @UseGuards(AuthGuard, RolesGuard)
     @Patch('/password')
     async updatePassword(
       @Req() request,
@@ -58,15 +60,15 @@ import { UpdateUserUseCase } from 'src/user/application/usecases/update-user.use
       return response.status(HttpStatus.OK).json(userUpdated);
     }
   
-    // @Role('admin')
-    @UseGuards(AuthGuard/*, AuthorizationGuard*/)
+    @Roles('ADMIN')
+    @UseGuards(AuthGuard, RolesGuard)
     @Delete(':id')
     async deleteUser(
       @Res() request,
       @Param('id', ParseIntPipe) id: number,
     ): Promise<any> {
-      await this.deleteUserUseCase.execute(id);
-      return request.status(HttpStatus.OK).json();
+      const deleted = await this.deleteUserUseCase.execute(id);
+      return request.status(HttpStatus.OK).json(deleted);
     }
   
   }

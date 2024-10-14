@@ -39,11 +39,11 @@ enum Role {
 model Driver {
   id                  Int                 @id @default(autoincrement())
   user_id             Int                 @unique
-  dataFile            String
-  status              Boolean             @default(false)
+  id_card             String              @unique
+  status              Boolean             @default(true)
   assignmentHistories AssignmentHistory[]
   user                User                @relation(fields: [user_id], references: [id])
-  vehicles            Vehicle[]
+ 
   //wallet              Wallet?
 
   @@map("drivers")
@@ -66,11 +66,8 @@ model Vehicle {
   model               String
   color               String
   status              String
-  enterpriseId        Int?
-  driverId            Int?
   typeId              Int
   assignmentHistories AssignmentHistory[]
-  driver              Driver?             @relation(fields: [driverId], references: [id])
   type                VehicleType         @relation(fields: [typeId], references: [id])
 
   @@map("vehicles")
