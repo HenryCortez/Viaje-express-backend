@@ -65,7 +65,7 @@ model Vehicle {
   brand               String
   model               String
   color               String
-  status              String
+  status              Boolean
   typeId              Int
   assignmentHistories AssignmentHistory[]
   type                VehicleType         @relation(fields: [typeId], references: [id])

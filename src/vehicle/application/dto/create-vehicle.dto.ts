@@ -1,32 +1,38 @@
-import { IsString, IsNotEmpty,  Length, MinLength, IsOptional, IsBoolean, IsNumber } from "class-validator";
+import {
+  IsString,
+  IsNotEmpty,
+  Length,
+  MinLength,
+  IsOptional,
+  IsBoolean,
+  IsNumber,
+} from 'class-validator';
 
 export class CreateVehicleDto {
   @IsString()
   @IsNotEmpty()
   @Length(6, 6)
-   licence_plate: string;
+  licence_plate: string;
 
   @IsString()
   @IsNotEmpty()
   @MinLength(3)
-   brand: string;
+  brand: string;
 
   @IsString()
   @IsNotEmpty()
   @MinLength(3)
-   model: string;
+  model: string;
 
   @IsString()
   @IsNotEmpty()
   @MinLength(3)
-   color: string;
+  color: string;
 
-
-  @IsBoolean()
   @IsOptional()
-   status?: boolean;
+  status?: boolean;
 
-   @IsNumber()
-    @IsNotEmpty()
-    typeId: number;
+  @IsNumber()
+  @IsNotEmpty()
+  typeId: number;
 }
