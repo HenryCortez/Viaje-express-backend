@@ -78,6 +78,6 @@ export class VehicleController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<any> {
     const deleted = await this.deleteVehicleUsecase.execute(id);
-    return request.status(HttpStatus.OK).json(deleted);
+    return request.status(HttpStatus.NO_CONTENT).json(deleted);
   }
 }

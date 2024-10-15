@@ -68,7 +68,7 @@ import { UpdateUserUseCase } from 'src/user/application/usecases/update-user.use
       @Param('id', ParseIntPipe) id: number,
     ): Promise<any> {
       const deleted = await this.deleteUserUseCase.execute(id);
-      return request.status(HttpStatus.OK).json(deleted);
+      return request.status(HttpStatus.NO_CONTENT).json(deleted);
     }
   
   }
