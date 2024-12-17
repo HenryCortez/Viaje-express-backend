@@ -15,6 +15,8 @@ import { UpdateTravelUseCase } from './usecases/travel/update-travel.usecase';
 import { AssigmentRepositoryAdapter } from '../infraestructure/repositories/prisma.assigment.repository.adapter';
 import { DetailRepositoryAdapter } from '../infraestructure/repositories/prisma.detail.repository.adapter';
 import { TravelRepositoryAdapter } from '../infraestructure/repositories/prisma.travel.repository.adapter';
+import { ListIncomeUseCase } from './usecases/travel/list-income.usecase';
+import { ListAllTravelsUseCase } from './usecases/travel/list-all-travels.usecase';
 
 @Module({
     imports:[CommonModule],
@@ -31,6 +33,8 @@ import { TravelRepositoryAdapter } from '../infraestructure/repositories/prisma.
         UpdateAssigmentUseCase,
         UpdateDetailUseCase,
         UpdateTravelUseCase,
+        ListIncomeUseCase,
+        ListAllTravelsUseCase,
         {
             provide: 'AssigmentRepository',
             useClass: AssigmentRepositoryAdapter
@@ -59,7 +63,9 @@ import { TravelRepositoryAdapter } from '../infraestructure/repositories/prisma.
         UpdateTravelUseCase,
         'AssigmentRepository',
         'DetailRepository',
-        'TravelRepository'
+        'TravelRepository',
+        ListIncomeUseCase,
+        ListAllTravelsUseCase
     ],
 })
 export class ApplicationTravelModule {}

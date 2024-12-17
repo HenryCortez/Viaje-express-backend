@@ -101,7 +101,7 @@ model AssignmentHistory {
   id          Int       @id @default(autoincrement())
   driverId    Int
   vehicleId   Int
-  date        DateTime  @default(now())
+  date        DateTime  
   updatedDate DateTime?
   driver      Driver    @relation(fields: [driverId], references: [id])
   vehicle     Vehicle   @relation(fields: [vehicleId], references: [id])
@@ -121,14 +121,14 @@ model Travel {
   id                  Int      @id @default(autoincrement())
   status              Status   @default(Pendiente)
   departure_datetime  DateTime
-  assignmentHistoryId Int      @unique
+  assignmentHistoryId Int?      @unique
   availableSeats      Int
-  routeId             Int      @unique
+  routeId             Int?      @unique
   estimatedArrival    DateTime
 
   //reservations        Reservation[]
-  assignmentHistory AssignmentHistory @relation(fields: [assignmentHistoryId], references: [id])
-  route             Route             @relation(fields: [routeId], references: [id])
+  assignmentHistory AssignmentHistory? @relation(fields: [assignmentHistoryId], references: [id])
+  route             Route?             @relation(fields: [routeId], references: [id])
 
   //walletTransactions  WalletTransaction[]
   TravelDetail TravelDetail[]

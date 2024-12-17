@@ -20,13 +20,13 @@ export class RouteRepositoryAdapter implements RouteRepositoryPort {
             console.log(name);
             city = await this.prisma.city.findFirstOrThrow({
                 where: {
-                    name: name.toLowerCase(),
+                    name: name,
                 },
             });
         } catch (error) {
             city = await this.prisma.city.create({
                 data: {
-                    name: name.toLowerCase(),
+                    name: name,
                 },
             });
         }

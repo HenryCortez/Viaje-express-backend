@@ -12,11 +12,5 @@ export class CreateDetailDto {
   seatNumber: number;
   @IsNotEmpty()
   @IsNumber()
-  normalPrice: number;
-  @IsNotEmpty()
-  @IsNumber()
   distanceAmount: number;
-  @IsNotEmpty()
-  @IsDate()
-  TotalPrice: number;
 }

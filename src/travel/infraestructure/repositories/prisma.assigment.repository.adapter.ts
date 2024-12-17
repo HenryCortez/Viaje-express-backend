@@ -10,46 +10,26 @@ export class AssigmentRepositoryAdapter implements AssigmentRepositoryPort {
     return await this.prisma.assignmentHistory.findMany();
   }
   async createAssigment(assigment: CreateAssigmentDto): Promise<any> {
-    try {
-      let vehicle = await this.prisma.vehicle.findUniqueOrThrow({
-        where: {
-          id: assigment.vehicleId,
-        },
-      });
-      if (!vehicle.status) {
-        vehicle = undefined;
-        throw new HttpException(
-          'Error, el vehiculo seleccionado no esta disponible.',
-          500,
-        );
-      }
-    } catch (error) {
-      throw new HttpException('Error, no existe ese vehiculo', 500);
+    if (!this.getVehicle(assigment.vehicleId)) {
+      throw new HttpException(
+        'Error, el vehiculo seleccionado no esta disponible',
+        500,
+      );
     }
 
-    try {
-      let driver = await this.prisma.driver.findUniqueOrThrow({
-        where: {
-          id: assigment.driverId,
-        },
-      });
-      if (!driver.status) {
-        driver = undefined;
-        throw new HttpException(
-          'Error, el conductor seleccionado no esta disponible.',
-          500,
-        );
-        
-      }
-    } catch (error) {
+    if (!this.getDriver(assigment.driverId)) {
       throw new HttpException('Error, no existe ese conductor', 500);
     }
+    const now = new Date();
+    now.setHours(now.getHours() - 5);
 
+    console.log(now);
     try {
       return await this.prisma.assignmentHistory.create({
         data: {
           driverId: assigment.driverId,
           vehicleId: assigment.vehicleId,
+          date: now,
         },
       });
     } catch (error) {
@@ -61,17 +41,83 @@ export class AssigmentRepositoryAdapter implements AssigmentRepositoryPort {
     id: number,
     assigment: Partial<CreateAssigmentDto>,
   ): Promise<any> {
-    
-    return await this.prisma.assignmentHistory.update({
+    if (!this.getVehicle(assigment.vehicleId)) {
+      throw new HttpException(
+        'Error, el vehiculo seleccionado no esta disponible',
+        500,
+      );
+    }
+
+    if (!this.getDriver(assigment.driverId)) {
+      throw new HttpException('Error, no existe ese conductor', 500);
+    }
+    let assig;
+    try {
+      assig = await this.prisma.assignmentHistory.findUniqueOrThrow({
         where: {
-            id: id
+          id: id,
         },
-        data: {
-            driverId: assigment.driverId 
-        }
-    })
+      });
+    } catch (error) {
+      throw new HttpException('Error, no existe la asignacion', 500);
+    }
+    const now = new Date();
+    now.setHours(now.getHours() - 5);
+    return await this.prisma.assignmentHistory.update({
+      where: {
+        id: id,
+      },
+      data: {
+        driverId: assigment.driverId || assig.driverId,
+        vehicleId: assigment.vehicleId || assig.vehicleId,
+        updatedDate: now,
+      },
+    });
   }
   async deleteAssigment(id: number): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    try {
+      await this.prisma.assignmentHistory.delete({
+        where: {
+          id: id,
+        },
+      });
+      return true;
+    } catch (error) {
+      throw new HttpException('Error, no existe la asignacion', 500);
+    }
+  }
+
+  private async getVehicle(id: number): Promise<boolean> {
+    try {
+      let vehicle = await this.prisma.vehicle.findUniqueOrThrow({
+        where: {
+          id: id,
+        },
+      });
+      if (!vehicle.status) {
+        vehicle = undefined;
+        return false;
+      }
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  private async getDriver(id: number): Promise<boolean> {
+    try {
+      let driver = await this.prisma.driver.findUniqueOrThrow({
+        where: {
+          id: id,
+        },
+      });
+      if (!driver.status) {
+        driver = undefined;
+        return false;
+      }
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 }
